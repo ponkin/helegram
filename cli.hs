@@ -11,6 +11,7 @@ import System.Entropy
 import Data.Digest.CRC32
 import Network.Simple.TCP hiding (recv)
 import Network.Socket.ByteString.Lazy
+import TLData
 
 data TcpFullPack = TcpFullPack
   { len :: !Word32
@@ -26,10 +27,8 @@ data ResPQ = ResPQ
   , constructor :: !Word32
   , nonce :: B.ByteString
   , server_nonce :: B.ByteString
-  , pq :: B.ByteString
-  , vector_long :: !Word32
-  , count :: !Word32  
-  , fingerprints :: B.ByteString 
+  , pq :: Integer
+  , fingerprints :: [Integer] 
   } deriving (Show)
 
 
@@ -61,11 +60,9 @@ unwrapResPq = do
     constructor <- getWord32le
     nonce <- getByteString $ fromIntegral $ 16
     server_nonce <- getByteString $ fromIntegral $ 16
-    pq <- getByteString $ fromIntegral $ 12
-    vector_long <- getWord32le
-    count <- getWord32le
-    fingerprints <- getByteString $ fromIntegral $ 8
-    return $! ResPQ auth_key_id message_id message_length constructor nonce server_nonce pq vector_long count fingerprints
+    pq <- getVarInteger
+    fingerprints <- getVectorLong
+    return $! ResPQ auth_key_id message_id message_length constructor nonce server_nonce pq fingerprints
 
 calcCrc32 :: B.ByteString -> Put
 calcCrc32 bytes = do

@@ -2,7 +2,7 @@ module Util
 ( pollard_rho_brent
 , pollard_rho
 ) where 
-	
+
 pollard_rho_step :: Integral a => (a -> a) -> a -> a -> a -> a
 pollard_rho_step f n x y
       | d > 1 = d
